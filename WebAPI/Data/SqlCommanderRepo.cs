@@ -41,6 +41,10 @@ namespace Commander.Data
             }
             _context.Commands.Add(cmd);
         }
-        
+
+        public void UpdateCommand(Command cmd)
+        {
+            //Nothing in our case of the sql server but in case we'll use other database it could be neccesary
+        }
     }
 }

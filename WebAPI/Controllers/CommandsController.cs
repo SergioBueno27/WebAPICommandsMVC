@@ -33,27 +33,29 @@ namespace Commander.Controllers
         }
         //GET api/commands
         [HttpGet]
-        public ActionResult<IEnumerable<CommandReadDto>> GetAllCommands() {
+        public ActionResult<IEnumerable<CommandReadDto>> GetAllCommands()
+        {
             var commandItems = _repository.GetAllCommands();
             return Ok(_mapper.Map<IEnumerable<CommandReadDto>>(commandItems));
         }
         //I added the name so afterwards I can obtain with nameof() and don't have unexpected results
         //GET api/commands/5
-        [HttpGet("{id}", Name ="GetCommandById")]
-        public ActionResult<CommandReadDto> GetCommandById(int id) { 
+        [HttpGet("{id}", Name = "GetCommandById")]
+        public ActionResult<CommandReadDto> GetCommandById(int id)
+        {
             var commandItem = _repository.GetCommandById(id);
             if (commandItem != null)
             {
                 return Ok(_mapper.Map<CommandReadDto>(commandItem));
             }
-                return NotFound();
-            
+            return NotFound();
+
         }
         //POST api/commands
         [HttpPost]
-        public ActionResult<CommandReadDto> CreateCommand(CommandCreateDto commandCreateDto) 
+        public ActionResult<CommandReadDto> CreateCommand(CommandCreateDto commandCreateDto)
         {
-            var commandModel = _mapper.Map<Command>(commandCreateDto);
+            Command commandModel = _mapper.Map<Command>(commandCreateDto);
             _repository.CreateCommand(commandModel);
             _repository.SaveChanges();
 
@@ -61,6 +63,26 @@ namespace Commander.Controllers
             //We changed the route to use de commandReadDto and show you in header the route of the just created object
             //new {} as you may know generates new Json object
             return CreatedAtRoute(nameof(GetCommandById), new { Id = commandReadDto.Id }, commandReadDto);
+        }
+
+        //PUT api/commands/{id}
+        [HttpPut("{id}")]
+        public ActionResult<CommandUpdateDto> UpdateCommand(int id, CommandUpdateDto commandUpdateDto)
+        {
+            var commandModelFromRepo = _repository.GetCommandById(id);
+            if (commandModelFromRepo == null)
+            {
+                return NotFound();
+            }
+            //It automatically updates the model with the commandUpdateDto
+            _mapper.Map(commandUpdateDto, commandModelFromRepo);
+            //In our case with sql we don't need to do anything here but either way we call it
+            //in case we change the database the update will work the same way
+            _repository.UpdateCommand(commandModelFromRepo);
+
+            _repository.SaveChanges();
+
+            return NoContent();
         }
     }
 }
