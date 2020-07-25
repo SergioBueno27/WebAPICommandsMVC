@@ -31,7 +31,8 @@ namespace WebAPI
             services.AddDbContext<CommanderContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             //Added service to point to the implementation to our repository
-            services.AddScoped<ICommanderRepo, MockCommanderRepo>();
+            //services.AddScoped<ICommanderRepo, MockCommanderRepo>();
+            services.AddScoped<ICommanderRepo, SqlCommanderRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
