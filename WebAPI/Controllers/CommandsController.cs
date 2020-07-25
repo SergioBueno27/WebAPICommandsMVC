@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Commander.Data;
+using Commander.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Data;
 using WebAPI.Dtos;
@@ -36,20 +37,30 @@ namespace Commander.Controllers
             var commandItems = _repository.GetAllCommands();
             return Ok(_mapper.Map<IEnumerable<CommandReadDto>>(commandItems));
         }
-
-    //GET api/commands/5
-    [HttpGet("{id}")]
+        //I added the name so afterwards I can obtain with nameof() and don't have unexpected results
+        //GET api/commands/5
+        [HttpGet("{id}", Name ="GetCommandById")]
         public ActionResult<CommandReadDto> GetCommandById(int id) { 
             var commandItem = _repository.GetCommandById(id);
             if (commandItem != null)
             {
                 return Ok(_mapper.Map<CommandReadDto>(commandItem));
             }
-            else 
-            {
                 return NotFound();
-            }
             
-    }
+        }
+        //POST api/commands
+        [HttpPost]
+        public ActionResult<CommandReadDto> CreateCommand(CommandCreateDto commandCreateDto) 
+        {
+            var commandModel = _mapper.Map<Command>(commandCreateDto);
+            _repository.CreateCommand(commandModel);
+            _repository.SaveChanges();
+
+            var commandReadDto = _mapper.Map<CommandReadDto>(commandModel);
+            //We changed the route to use de commandReadDto and show you in header the route of the just created object
+            //new {} as you may know generates new Json object
+            return CreatedAtRoute(nameof(GetCommandById), new { Id = commandReadDto.Id }, commandReadDto);
+        }
     }
 }
